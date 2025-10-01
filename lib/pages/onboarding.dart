@@ -61,7 +61,7 @@ class _OnboardingState extends State<Onboarding> {
                         height: 60,
                         width: MediaQuery.of(context).size.width,
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 49, 116, 183),
+                          color: const Color.fromARGB(255, 115, 163, 211),
                           borderRadius: BorderRadius.circular(40),
                         ),
                         child: Center(
