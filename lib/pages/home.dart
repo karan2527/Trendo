@@ -1,4 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:trendo/models/article_model.dart';
+import 'package:trendo/services/news.dart';
+
+// Define CategoryModel if not already defined elsewhere
+class CategoryModel {
+  final String name;
+  final String imagePath;
+
+  CategoryModel({required this.name, required this.imagePath});
+}
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -8,6 +19,25 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  List<CategoryModel> categories = [];
+  List<ArticleModel> articles = [];
+  bool loading = true;
+
+  @override
+  void initState() {
+    getNews();
+    super.initState();
+  }
+
+  getNews() async {
+    News newsclass = News();
+    await newsclass.getNews();
+    articles = newsclass.news;
+    setState(() {
+      loading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,7 +46,7 @@ class _HomeState extends State<Home> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 30),
+            SizedBox(height: 50),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -24,52 +54,58 @@ class _HomeState extends State<Home> {
                   "Trend",
                   style: TextStyle(
                     color: Color(0xFF007BFF),
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 34,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 Text(
                   "o",
                   style: TextStyle(
-                    color: Color.fromARGB(255, 15, 14, 14),
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1A1A1A),
+                    fontSize: 34,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 24),
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Text(
                 "Hottest News",
                 style: TextStyle(
-                  color: Color.fromARGB(255, 10, 10, 10),
-                  fontSize: 28,
-                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF1A1A1A),
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
                 ),
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 16),
 
             Container(
-              height: 280,
-              child: ListView(
+              height: 310,
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: ClampingScrollPhysics(),
+                itemCount: articles.length,
                 scrollDirection: Axis.horizontal,
                 padding: EdgeInsets.symmetric(horizontal: 20),
-                children: [
-                  // First Card
-                  Container(
-                    width: 200,
-                    margin: EdgeInsets.only(right: 15),
+                itemBuilder: (BuildContext context, int index) {
+                  return Container(
+                    width: 250,
+                    margin: EdgeInsets.only(right: 16),
                     child: Material(
-                      elevation: 3,
-                      borderRadius: BorderRadius.circular(18),
+                      elevation: 4,
+                      borderRadius: BorderRadius.circular(20),
+                      shadowColor: Colors.grey.withOpacity(0.3),
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,181 +113,120 @@ class _HomeState extends State<Home> {
                             // Image section
                             ClipRRect(
                               borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(18),
-                                topRight: Radius.circular(18),
+                                topLeft: Radius.circular(20),
+                                topRight: Radius.circular(20),
                               ),
-                              child: Image.asset(
-                                "assets/images/news1.jpg",
+                              child: Container(
+                                height: 140,
                                 width: double.infinity,
-                                height: 120,
-                                fit: BoxFit.cover,
+                                child: Image.network(
+                                  articles[index].urlToImage!,
+                                  fit: BoxFit.cover,
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                        if (loadingProgress == null)
+                                          return child;
+                                        return Container(
+                                          height: 140,
+                                          color: Colors.grey[200],
+                                          child: Center(
+                                            child: CircularProgressIndicator(
+                                              color: Color(0xFF007BFF),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      height: 140,
+                                      color: Colors.grey[200],
+                                      child: Icon(
+                                        Icons.image_not_supported,
+                                        color: Colors.grey[400],
+                                        size: 40,
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                             ),
 
                             // Content section
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Please Subscribe to Shivam's Channel",
-                                      style: TextStyle(
-                                        color: Color.fromARGB(255, 10, 10, 10),
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
+                            Container(
+                              height: 160,
+                              padding: const EdgeInsets.all(14.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    articles[index].title!,
+                                    maxLines: 2,
+                                    style: TextStyle(
+                                      color: Color(0xFF1A1A1A),
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.2,
                                     ),
-                                    SizedBox(height: 6),
-                                    Text(
-                                      "Lorem Ipsum is simply dummy text of the printing",
-                                      style: TextStyle(
-                                        color: Color.fromARGB(
-                                          255,
-                                          120,
-                                          120,
-                                          120,
-                                        ),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  SizedBox(height: 6),
+                                  Text(
+                                    articles[index].desc ??
+                                        "No description available",
+                                    maxLines: 2,
+                                    style: TextStyle(
+                                      color: Color(0xFF6B7280),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      height: 1.3,
                                     ),
-                                    Spacer(),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Spacer(),
 
-                                    // Button section
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Container(
-                                          height: 32,
-                                          width: 32,
-                                          decoration: BoxDecoration(
-                                            color: Color(0xFF007BFF),
-                                            borderRadius: BorderRadius.circular(
-                                              8,
+                                  // Button section
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Container(
+                                        height: 34,
+                                        width: 34,
+                                        decoration: BoxDecoration(
+                                          color: Color(0xFF007BFF),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Color(
+                                                0xFF007BFF,
+                                              ).withOpacity(0.3),
+                                              blurRadius: 6,
+                                              offset: Offset(0, 2),
                                             ),
-                                          ),
-                                          child: Icon(
-                                            Icons.arrow_forward,
-                                            color: Colors.white,
-                                            size: 18,
-                                          ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                                        child: Icon(
+                                          Icons.arrow_forward,
+                                          color: Colors.white,
+                                          size: 18,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
                     ),
-                  ),
-
-                  // Second Card
-                  Container(
-                    width: 200,
-                    child: Material(
-                      elevation: 3,
-                      borderRadius: BorderRadius.circular(18),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Image section
-                            ClipRRect(
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(18),
-                                topRight: Radius.circular(18),
-                              ),
-                              child: Image.asset(
-                                "assets/images/news2.jpg",
-                                width: double.infinity,
-                                height: 120,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-
-                            // Content section
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Please Subscribe to Shivam's Channel",
-                                      style: TextStyle(
-                                        color: Color.fromARGB(255, 10, 10, 10),
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    SizedBox(height: 6),
-                                    Text(
-                                      "Lorem Ipsum is simply dummy text of the printing",
-                                      style: TextStyle(
-                                        color: Color.fromARGB(
-                                          255,
-                                          120,
-                                          120,
-                                          120,
-                                        ),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    Spacer(),
-
-                                    // Button section
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Container(
-                                          height: 32,
-                                          width: 32,
-                                          decoration: BoxDecoration(
-                                            color: Color(0xFF007BFF),
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                          child: Icon(
-                                            Icons.arrow_forward,
-                                            color: Colors.white,
-                                            size: 18,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
 
-            SizedBox(height: 20),
+            SizedBox(height: 32),
 
             // Explore Section
             Padding(
@@ -259,49 +234,72 @@ class _HomeState extends State<Home> {
               child: Text(
                 "Explore",
                 style: TextStyle(
-                  color: Color.fromARGB(255, 10, 10, 10),
-                  fontSize: 28,
-                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF1A1A1A),
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
                 ),
               ),
             ),
-            SizedBox(height: 15),
+            SizedBox(height: 16),
 
             Container(
-              height: 120,
+              height: 110,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 children: [
                   // Business Category
                   Container(
-                    margin: EdgeInsets.only(right: 20),
+                    margin: EdgeInsets.only(right: 24),
                     child: Column(
                       children: [
                         Container(
-                          width: 100,
-                          height: 100,
+                          width: 80,
+                          height: 80,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            image: DecorationImage(
-                              image: AssetImage("assets/images/news1.jpg"),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.black.withOpacity(0.4),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Business",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: Offset(0, 4),
                               ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: Stack(
+                              children: [
+                                Image.asset(
+                                  "assets/images/news1.jpg",
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.black.withOpacity(0.3),
+                                        Colors.black.withOpacity(0.6),
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "Business",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -311,34 +309,56 @@ class _HomeState extends State<Home> {
 
                   // Entertainment Category
                   Container(
-                    margin: EdgeInsets.only(right: 20),
+                    margin: EdgeInsets.only(right: 24),
                     child: Column(
                       children: [
                         Container(
-                          width: 100,
-                          height: 100,
+                          width: 80,
+                          height: 80,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            image: DecorationImage(
-                              image: AssetImage("assets/images/news2.jpg"),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.black.withOpacity(0.4),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Entertainment",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: Offset(0, 4),
                               ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: Stack(
+                              children: [
+                                Image.asset(
+                                  "assets/images/news2.jpg",
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.black.withOpacity(0.3),
+                                        Colors.black.withOpacity(0.6),
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "Entertainment",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -348,33 +368,55 @@ class _HomeState extends State<Home> {
 
                   // Science Category
                   Container(
-                    margin: EdgeInsets.only(right: 20),
+                    margin: EdgeInsets.only(right: 24),
                     child: Column(
                       children: [
                         Container(
-                          width: 100,
-                          height: 100,
+                          width: 80,
+                          height: 80,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            image: DecorationImage(
-                              image: AssetImage("assets/images/news3.jpg"),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.black.withOpacity(0.4),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Science",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: Offset(0, 4),
                               ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: Stack(
+                              children: [
+                                Image.asset(
+                                  "assets/images/news3.jpg",
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.black.withOpacity(0.3),
+                                        Colors.black.withOpacity(0.6),
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "Science",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -382,35 +424,57 @@ class _HomeState extends State<Home> {
                     ),
                   ),
 
-                  // Sports Category (Additional)
+                  // Sports Category
                   Container(
-                    margin: EdgeInsets.only(right: 20),
+                    margin: EdgeInsets.only(right: 24),
                     child: Column(
                       children: [
                         Container(
-                          width: 100,
-                          height: 100,
+                          width: 80,
+                          height: 80,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            image: DecorationImage(
-                              image: AssetImage("assets/images/news1.jpg"),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.black.withOpacity(0.4),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Sports",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: Offset(0, 4),
                               ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: Stack(
+                              children: [
+                                Image.asset(
+                                  "assets/images/news1.jpg",
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.black.withOpacity(0.3),
+                                        Colors.black.withOpacity(0.6),
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "Sports",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -418,35 +482,57 @@ class _HomeState extends State<Home> {
                     ),
                   ),
 
-                  // Technology Category (Additional)
+                  // Technology Category
                   Container(
                     child: Column(
                       children: [
                         Container(
-                          width: 100,
-                          height: 100,
+                          width: 80,
+                          height: 80,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            image: DecorationImage(
-                              image: AssetImage("assets/images/news2.jpg"),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.black.withOpacity(0.4),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Technology",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: Offset(0, 4),
                               ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: Stack(
+                              children: [
+                                Image.asset(
+                                  "assets/images/news2.jpg",
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.black.withOpacity(0.3),
+                                        Colors.black.withOpacity(0.6),
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "Technology",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -457,7 +543,7 @@ class _HomeState extends State<Home> {
               ),
             ),
 
-            SizedBox(height: 20),
+            SizedBox(height: 32),
 
             // Trending News Section
             Padding(
@@ -465,13 +551,14 @@ class _HomeState extends State<Home> {
               child: Text(
                 "Trending News",
                 style: TextStyle(
-                  color: Color.fromARGB(255, 10, 10, 10),
-                  fontSize: 28,
-                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF1A1A1A),
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
                 ),
               ),
             ),
-            SizedBox(height: 15),
+            SizedBox(height: 16),
 
             // Trending News Cards
             Padding(
@@ -480,16 +567,15 @@ class _HomeState extends State<Home> {
                 children: [
                   // First Trending Card
                   Container(
-                    margin: EdgeInsets.only(bottom: 15),
+                    margin: EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: Offset(0, 3),
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),
@@ -498,11 +584,11 @@ class _HomeState extends State<Home> {
                         // Image on the left
                         Container(
                           width: 100,
-                          height: 120,
+                          height: 110,
                           child: ClipRRect(
                             borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(15),
-                              bottomLeft: Radius.circular(15),
+                              topLeft: Radius.circular(16),
+                              bottomLeft: Radius.circular(16),
                             ),
                             child: Image.asset(
                               "assets/images/news1.jpg",
@@ -514,8 +600,8 @@ class _HomeState extends State<Home> {
                         // Content on the right
                         Expanded(
                           child: Container(
-                            height: 120,
-                            padding: const EdgeInsets.all(15.0),
+                            height: 110,
+                            padding: const EdgeInsets.all(16.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -523,19 +609,21 @@ class _HomeState extends State<Home> {
                                 Text(
                                   "Bye-bye boss. After a game-playing AI agent got backing",
                                   style: TextStyle(
-                                    color: Color.fromARGB(255, 10, 10, 10),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1A1A1A),
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.3,
                                   ),
-                                  maxLines: 3,
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 SizedBox(height: 8),
                                 Text(
                                   "Technology • 2h ago",
                                   style: TextStyle(
-                                    color: Color.fromARGB(255, 120, 120, 120),
+                                    color: Color(0xFF6B7280),
                                     fontSize: 12,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                               ],
@@ -548,16 +636,15 @@ class _HomeState extends State<Home> {
 
                   // Second Trending Card
                   Container(
-                    margin: EdgeInsets.only(bottom: 15),
+                    margin: EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: Offset(0, 3),
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),
@@ -566,11 +653,11 @@ class _HomeState extends State<Home> {
                         // Image on the left
                         Container(
                           width: 100,
-                          height: 120,
+                          height: 110,
                           child: ClipRRect(
                             borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(15),
-                              bottomLeft: Radius.circular(15),
+                              topLeft: Radius.circular(16),
+                              bottomLeft: Radius.circular(16),
                             ),
                             child: Image.asset(
                               "assets/images/news2.jpg",
@@ -582,28 +669,30 @@ class _HomeState extends State<Home> {
                         // Content on the right
                         Expanded(
                           child: Container(
-                            height: 120,
-                            padding: const EdgeInsets.all(15.0),
+                            height: 110,
+                            padding: const EdgeInsets.all(16.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  "\$2,000 for housing,  opportunities",
+                                  "\$450M for Noname, two billion-dollar rounds, and good news for crypto",
                                   style: TextStyle(
-                                    color: Color.fromARGB(255, 10, 10, 10),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1A1A1A),
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.3,
                                   ),
-                                  maxLines: 3,
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 SizedBox(height: 8),
                                 Text(
                                   "Business • 1h ago",
                                   style: TextStyle(
-                                    color: Color.fromARGB(255, 120, 120, 120),
+                                    color: Color(0xFF6B7280),
                                     fontSize: 12,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                               ],
@@ -616,16 +705,15 @@ class _HomeState extends State<Home> {
 
                   // Third Trending Card
                   Container(
-                    margin: EdgeInsets.only(bottom: 15),
+                    margin: EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: Offset(0, 3),
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),
@@ -634,11 +722,11 @@ class _HomeState extends State<Home> {
                         // Image on the left
                         Container(
                           width: 100,
-                          height: 120,
+                          height: 110,
                           child: ClipRRect(
                             borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(15),
-                              bottomLeft: Radius.circular(15),
+                              topLeft: Radius.circular(16),
+                              bottomLeft: Radius.circular(16),
                             ),
                             child: Image.asset(
                               "assets/images/news3.jpg",
@@ -650,28 +738,30 @@ class _HomeState extends State<Home> {
                         // Content on the right
                         Expanded(
                           child: Container(
-                            height: 120,
-                            padding: const EdgeInsets.all(15.0),
+                            height: 110,
+                            padding: const EdgeInsets.all(16.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  "Scientists discover energy production",
+                                  "Scientists discover revolutionary clean energy production method",
                                   style: TextStyle(
-                                    color: Color.fromARGB(255, 10, 10, 10),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1A1A1A),
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.3,
                                   ),
-                                  maxLines: 3,
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 SizedBox(height: 8),
                                 Text(
                                   "Science • 3h ago",
                                   style: TextStyle(
-                                    color: Color.fromARGB(255, 120, 120, 120),
+                                    color: Color(0xFF6B7280),
                                     fontSize: 12,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                               ],
@@ -684,16 +774,15 @@ class _HomeState extends State<Home> {
 
                   // Fourth Trending Card
                   Container(
-                    margin: EdgeInsets.only(bottom: 20),
+                    margin: EdgeInsets.only(bottom: 24),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: Offset(0, 3),
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),
@@ -702,11 +791,11 @@ class _HomeState extends State<Home> {
                         // Image on the left
                         Container(
                           width: 100,
-                          height: 120,
+                          height: 110,
                           child: ClipRRect(
                             borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(15),
-                              bottomLeft: Radius.circular(15),
+                              topLeft: Radius.circular(16),
+                              bottomLeft: Radius.circular(16),
                             ),
                             child: Image.asset(
                               "assets/images/news1.jpg",
@@ -718,28 +807,30 @@ class _HomeState extends State<Home> {
                         // Content on the right
                         Expanded(
                           child: Container(
-                            height: 120,
-                            padding: const EdgeInsets.all(15.0),
+                            height: 110,
+                            padding: const EdgeInsets.all(16.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  "Entertainment r breakthrough in streaming",
+                                  "Entertainment industry sees major breakthrough in streaming technology",
                                   style: TextStyle(
-                                    color: Color.fromARGB(255, 10, 10, 10),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1A1A1A),
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.3,
                                   ),
-                                  maxLines: 3,
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 SizedBox(height: 8),
                                 Text(
                                   "Entertainment • 4h ago",
                                   style: TextStyle(
-                                    color: Color.fromARGB(255, 120, 120, 120),
+                                    color: Color(0xFF6B7280),
                                     fontSize: 12,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                               ],

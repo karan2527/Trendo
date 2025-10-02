@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trendo/pages/category_news.dart';
 import 'package:trendo/pages/home.dart';
 import 'package:trendo/pages/onboarding.dart';
 
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const Home(),
+      home: CategoryNews(name: "yoyoyo"),
     );
   }
 }
