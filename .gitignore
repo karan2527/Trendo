@@ -44,17 +44,36 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Environment variables and API keys
+# Environment variables and API keys - NEVER COMMIT THESE
 .env
-.env.local
-.env.production
-.env.staging
+.env.*
+!.env.example
+*.env
+env.dart
 lib/config/api_keys.dart
 api_keys.dart
 **/api_keys.dart
 secrets.dart
 **/secrets.dart
+config.dart
+**/config.dart
+
+# API Keys and sensitive data
+**/api_key*
+**/secret*
+**/credential*
+*.key
+*.pem
+*.p12
 
 # Sensitive configuration files
 config/secrets/
 config/api_keys/
+config/credentials/
+
+# Local environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.staging
