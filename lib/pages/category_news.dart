@@ -51,7 +51,7 @@ class _CategoryNewsState extends State<CategoryNews> {
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(width: MediaQuery.of(context).size.width / 3.7),
+                  SizedBox(width: MediaQuery.of(context).size.width / 3.2),
                   Text(
                     widget.name.toUpperCase(),
                     style: TextStyle(
@@ -59,6 +59,7 @@ class _CategoryNewsState extends State<CategoryNews> {
                       fontSize: 29,
                       fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
