@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trendo/models/article_model.dart';
+import 'package:trendo/pages/article_view.dart';
 import 'package:trendo/pages/category_news.dart';
 import 'package:trendo/services/news.dart';
 
@@ -58,12 +59,12 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 247, 241, 241),
+      backgroundColor: const Color.fromARGB(255, 226, 239, 247),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 50),
+            SizedBox(height: 30),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -71,7 +72,7 @@ class _HomeState extends State<Home> {
                   "Trend",
                   style: TextStyle(
                     color: Color(0xFF007BFF),
-                    fontSize: 34,
+                    fontSize: 44,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.5,
                   ),
@@ -80,14 +81,14 @@ class _HomeState extends State<Home> {
                   "o",
                   style: TextStyle(
                     color: Color(0xFF1A1A1A),
-                    fontSize: 34,
+                    fontSize: 44,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.5,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 24),
+            SizedBox(height: 4),
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -105,136 +106,141 @@ class _HomeState extends State<Home> {
 
             Container(
               height: 310,
+              width: MediaQuery.of(context).size.width,
               child: ListView.builder(
                 shrinkWrap: true,
                 physics: ClampingScrollPhysics(),
-                itemCount: articles.length,
+                itemCount: articles.length >= 10
+                    ? 5
+                    : (articles.length / 2)
+                          .ceil(), // First half for hottest news
                 scrollDirection: Axis.horizontal,
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 itemBuilder: (BuildContext context, int index) {
                   return Container(
-                    width: 250,
-                    margin: EdgeInsets.only(right: 16),
-                    child: Material(
-                      elevation: 4,
-                      borderRadius: BorderRadius.circular(20),
-                      shadowColor: Colors.grey.withOpacity(0.3),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Image section
-                            ClipRRect(
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                topRight: Radius.circular(20),
-                              ),
-                              child: Container(
-                                height: 140,
-                                width: double.infinity,
-                                child: Image.network(
-                                  articles[index].urlToImage!,
-                                  fit: BoxFit.cover,
-                                  loadingBuilder:
-                                      (context, child, loadingProgress) {
-                                        if (loadingProgress == null)
-                                          return child;
-                                        return Container(
+                    margin: EdgeInsets.only(right: 16), // Add gap between cards
+                    child: GestureDetector(
+                      onTap: () {
+                        if (articles[index].url != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ArticleView(blogUrl: articles[index].url!),
+                            ),
+                          );
+                        }
+                      },
+                      child: Material(
+                        elevation: 4,
+                        borderRadius: BorderRadius.circular(20),
+                        shadowColor: Colors.grey.withOpacity(0.3),
+                        child: Container(
+                          width: 280, // Fixed width for horizontal cards
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Image section
+                              ClipRRect(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(20),
+                                  topRight: Radius.circular(20),
+                                ),
+                                child: Container(
+                                  height: 140,
+                                  width: 280, // Match the card width
+                                  child: articles[index].urlToImage != null
+                                      ? Image.network(
+                                          articles[index].urlToImage!,
+                                          fit: BoxFit.cover,
+                                          loadingBuilder:
+                                              (
+                                                context,
+                                                child,
+                                                loadingProgress,
+                                              ) {
+                                                if (loadingProgress == null)
+                                                  return child;
+                                                return Container(
+                                                  height: 140,
+                                                  color: Colors.grey[200],
+                                                  child: Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                          color: Color(
+                                                            0xFF007BFF,
+                                                          ),
+                                                        ),
+                                                  ),
+                                                );
+                                              },
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return Container(
+                                                  height: 140,
+                                                  color: Colors.grey[200],
+                                                  child: Icon(
+                                                    Icons.image_not_supported,
+                                                    color: Colors.grey[400],
+                                                    size: 40,
+                                                  ),
+                                                );
+                                              },
+                                        )
+                                      : Container(
                                           height: 140,
                                           color: Colors.grey[200],
-                                          child: Center(
-                                            child: CircularProgressIndicator(
-                                              color: Color(0xFF007BFF),
-                                            ),
+                                          child: Icon(
+                                            Icons.image_not_supported,
+                                            color: Colors.grey[400],
+                                            size: 40,
                                           ),
-                                        );
-                                      },
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      height: 140,
-                                      color: Colors.grey[200],
-                                      child: Icon(
-                                        Icons.image_not_supported,
-                                        color: Colors.grey[400],
-                                        size: 40,
-                                      ),
-                                    );
-                                  },
+                                        ),
                                 ),
                               ),
-                            ),
 
-                            // Content section
-                            Container(
-                              height: 160,
-                              padding: const EdgeInsets.all(14.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    articles[index].title!,
-                                    maxLines: 2,
-                                    style: TextStyle(
-                                      color: Color(0xFF1A1A1A),
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.2,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  SizedBox(height: 6),
-                                  Text(
-                                    articles[index].desc ??
-                                        "No description available",
-                                    maxLines: 2,
-                                    style: TextStyle(
-                                      color: Color(0xFF6B7280),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w400,
-                                      height: 1.3,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  Spacer(),
-
-                                  // Button section
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Container(
-                                        height: 34,
-                                        width: 34,
-                                        decoration: BoxDecoration(
-                                          color: Color(0xFF007BFF),
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Color(
-                                                0xFF007BFF,
-                                              ).withOpacity(0.3),
-                                              blurRadius: 6,
-                                              offset: Offset(0, 2),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Icon(
-                                          Icons.arrow_forward,
-                                          color: Colors.white,
-                                          size: 18,
-                                        ),
+                              // Content section
+                              Container(
+                                height: 160,
+                                padding: const EdgeInsets.all(14.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      articles[index].title ??
+                                          "No title available",
+                                      maxLines: 2,
+                                      style: TextStyle(
+                                        color: Color(0xFF1A1A1A),
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.2,
                                       ),
-                                    ],
-                                  ),
-                                ],
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    SizedBox(height: 6),
+                                    Text(
+                                      articles[index].desc ??
+                                          "No description available",
+                                      maxLines: 4,
+                                      style: TextStyle(
+                                        color: Color(0xFF6B7280),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                        height: 1.3,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Spacer(),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -261,7 +267,8 @@ class _HomeState extends State<Home> {
             SizedBox(height: 16),
 
             Container(
-              height: 110,
+              height: 130, // Increased from 110 to accommodate larger circles
+              width: MediaQuery.of(context).size.width,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: EdgeInsets.symmetric(horizontal: 20),
@@ -278,7 +285,7 @@ class _HomeState extends State<Home> {
               ),
             ),
 
-            SizedBox(height: 32),
+            SizedBox(height: 0),
 
             // Trending News Section
             Padding(
@@ -295,82 +302,148 @@ class _HomeState extends State<Home> {
             ),
             SizedBox(height: 16),
 
-            // Trending News Cards
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                children: [
-                  // First Trending Card
-                  Container(
-                    margin: EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        // Image on the left
-                        Container(
-                          width: 100,
-                          height: 110,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(16),
-                              bottomLeft: Radius.circular(16),
-                            ),
-                            child: Image.asset(
-                              "assets/images/news1.jpg",
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
+            // Trending News Cards - Dynamic from API
+            Container(
+              height: 400, // Fixed height for vertical scrolling
+              child: ListView.builder(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                itemCount: articles.length >= 10
+                    ? 5
+                    : (articles.length / 2)
+                          .floor(), // Second half for trending news
+                itemBuilder: (context, index) {
+                  // Calculate the actual index for the second half of articles
+                  int actualIndex = articles.length >= 10
+                      ? index +
+                            5 // Start from index 5 if we have 10+ articles
+                      : index +
+                            (articles.length / 2)
+                                .ceil(); // Start from middle if less than 10
 
-                        // Content on the right
-                        Expanded(
-                          child: Container(
-                            height: 110,
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Bye-bye boss. After a game-playing AI agent got backing",
-                                  style: TextStyle(
-                                    color: Color(0xFF1A1A1A),
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.3,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  "Technology • 2h ago",
-                                  style: TextStyle(
-                                    color: Color(0xFF6B7280),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
+                  return GestureDetector(
+                    onTap: () {
+                      if (articles[actualIndex].url != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ArticleView(
+                              blogUrl: articles[actualIndex].url!,
                             ),
                           ),
-                        ),
-                      ],
+                        );
+                      }
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          // Image on the left
+                          Container(
+                            width: 100,
+                            height: 110,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(16),
+                                bottomLeft: Radius.circular(16),
+                              ),
+                              child: articles[actualIndex].urlToImage != null
+                                  ? Image.network(
+                                      articles[actualIndex].urlToImage!,
+                                      fit: BoxFit.cover,
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                            if (loadingProgress == null)
+                                              return child;
+                                            return Container(
+                                              color: Colors.grey[200],
+                                              child: Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      color: Color(0xFF007BFF),
+                                                      strokeWidth: 2,
+                                                    ),
+                                              ),
+                                            );
+                                          },
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                            return Container(
+                                              color: Colors.grey[200],
+                                              child: Icon(
+                                                Icons.image_not_supported,
+                                                color: Colors.grey[400],
+                                                size: 30,
+                                              ),
+                                            );
+                                          },
+                                    )
+                                  : Container(
+                                      color: Colors.grey[200],
+                                      child: Icon(
+                                        Icons.image_not_supported,
+                                        color: Colors.grey[400],
+                                        size: 30,
+                                      ),
+                                    ),
+                            ),
+                          ),
+
+                          // Content on the right
+                          Expanded(
+                            child: Container(
+                              height: 110,
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    articles[actualIndex].title ??
+                                        "No title available",
+                                    style: TextStyle(
+                                      color: Color(0xFF1A1A1A),
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.3,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    articles[actualIndex].desc ??
+                                        "No description available",
+                                    style: TextStyle(
+                                      color: Color(0xFF6B7280),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
+            SizedBox(height: 20), // Add some bottom spacing
           ],
         ),
       ),
@@ -409,14 +482,14 @@ class CategoryCircle extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              width: 80,
-              height: 80,
+              width: 100, // Increased from 80 to 100
+              height: 100, // Increased from 80 to 100
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
+                    blurRadius: 10, // Slightly increased shadow
                     offset: Offset(0, 4),
                   ),
                 ],
@@ -426,8 +499,8 @@ class CategoryCircle extends StatelessWidget {
                   children: [
                     Image.asset(
                       imagePath,
-                      width: 80,
-                      height: 80,
+                      width: 150, // Updated to match container
+                      height: 150, // Updated to match container
                       fit: BoxFit.cover,
                     ),
                     Container(
@@ -447,7 +520,8 @@ class CategoryCircle extends StatelessWidget {
                           name,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: fontSize,
+                            fontSize:
+                                fontSize + 1, // Slightly increased font size
                             fontWeight: FontWeight.w600,
                           ),
                           textAlign: TextAlign.center,

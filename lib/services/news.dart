@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:trendo/models/article_model.dart';
 import 'package:http/http.dart' as http;
+
 //API calling karenge and data lenge yaha par
 class News {
   List<ArticleModel> news = [];

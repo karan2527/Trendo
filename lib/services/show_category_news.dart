@@ -20,6 +20,7 @@ class ShowCategoryNews {
             title: element['title'],
             desc: element['description'],
             urlToImage: element['urlToImage'],
+            url: element['url'],
           );
           categories.add(showCategoryModel);
         }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:trendo/models/show_category.dart';
 import 'package:trendo/services/show_category_news.dart';
+import 'package:trendo/pages/article_view.dart';
 
 class CategoryNews extends StatefulWidget {
   final String name;
@@ -76,8 +77,10 @@ class _CategoryNewsState extends State<CategoryNews> {
                     topRight: Radius.circular(20),
                   ),
                 ),
+
                 child: ListView.builder(
-                  padding: EdgeInsets.zero,
+                  physics: BouncingScrollPhysics(),
+                  padding: EdgeInsets.all(5.0),
                   itemCount: categories.length,
                   shrinkWrap: true,
 
@@ -85,8 +88,9 @@ class _CategoryNewsState extends State<CategoryNews> {
                     return CaategoryTile(
                       Title: categories[index].title,
                       desc: categories[index].desc,
-                      image: categories[index]
-                          .urlToImage, // Replace 'imageUrl' with the correct property name from ShowCategoryModel
+                      image: categories[index].urlToImage,
+                      url: categories[index]
+                          .url, // Replace 'imageUrl' with the correct property name from ShowCategoryModel
                     );
                   },
                 ),
@@ -100,85 +104,93 @@ class _CategoryNewsState extends State<CategoryNews> {
 }
 
 class CaategoryTile extends StatelessWidget {
-  final image, Title, desc;
-  CaategoryTile({this.image, this.Title, this.desc});
+  final image, Title, desc, url;
+  CaategoryTile({this.image, this.Title, this.desc, this.url});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(10.0),
-      child: Column(
-        children: [
-          Container(
-            child: Column(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10.0),
-                  child: Image.network(
-                    image,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        height: 200,
-                        color: Colors.grey[200],
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: Color(0xFF007BFF),
+      margin: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ArticleView(blogUrl: url)),
+          );
+        },
+        child: Column(
+          children: [
+            Container(
+              child: Column(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10.0),
+                    child: Image.network(
+                      image,
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          height: 200,
+                          color: Colors.grey[200],
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFF007BFF),
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        height: 200,
-                        color: Colors.grey[200],
-                        child: Icon(
-                          Icons.image_not_supported,
-                          color: Colors.grey[400],
-                          size: 40,
-                        ),
-                      );
-                    },
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 200,
+                          color: Colors.grey[200],
+                          child: Icon(
+                            Icons.image_not_supported,
+                            color: Colors.grey[400],
+                            size: 40,
+                          ),
+                        );
+                      },
+                    ),
                   ),
+                ],
+              ),
+            ),
+            SizedBox(height: 5.0),
+            Container(
+              padding: EdgeInsets.only(left: 5.0, right: 5.0),
+              width: MediaQuery.of(context).size.width,
+              child: Text(
+                Title!,
+                maxLines: 2,
+
+                style: TextStyle(
+                  color: const Color.fromARGB(188, 0, 0, 0),
+                  fontSize: 19.0,
+                  fontWeight: FontWeight.bold,
                 ),
-              ],
-            ),
-          ),
-          SizedBox(height: 5.0),
-          Container(
-            padding: EdgeInsets.only(left: 5.0, right: 5.0),
-            width: MediaQuery.of(context).size.width,
-            child: Text(
-              Title!,
-              maxLines: 2,
-
-              style: TextStyle(
-                color: const Color.fromARGB(188, 0, 0, 0),
-                fontSize: 19.0,
-                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
 
-          SizedBox(height: 2.0),
+            SizedBox(height: 2.0),
 
-          Container(
-            padding: EdgeInsets.only(left: 5.0, right: 5.0),
-            width: MediaQuery.of(context).size.width,
-            child: Text(
-              desc!,
-              maxLines: 4,
+            Container(
+              padding: EdgeInsets.only(left: 5.0, right: 5.0),
+              width: MediaQuery.of(context).size.width,
+              child: Text(
+                desc!,
+                maxLines: 4,
 
-              style: TextStyle(
-                color: const Color.fromARGB(151, 0, 0, 0),
-                fontSize: 17,
+                style: TextStyle(
+                  color: const Color.fromARGB(151, 0, 0, 0),
+                  fontSize: 17,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
