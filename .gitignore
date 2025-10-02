@@ -43,3 +43,18 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Environment variables and API keys
+.env
+.env.local
+.env.production
+.env.staging
+lib/config/api_keys.dart
+api_keys.dart
+**/api_keys.dart
+secrets.dart
+**/secrets.dart
+
+# Sensitive configuration files
+config/secrets/
+config/api_keys/

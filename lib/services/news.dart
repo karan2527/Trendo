@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:trendo/models/article_model.dart';
+import 'package:trendo/config/api_config.dart';
 import 'package:http/http.dart' as http;
 
 //API calling karenge and data lenge yaha par
@@ -9,8 +10,10 @@ class News {
   List<ArticleModel> news = [];
 
   Future<void> getNews() async {
-    String url =
-        "https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=258ec2b7bffa450e909edd8ed06249dc";
+    String url = ApiConfig.buildUrl(
+      "https://newsapi.org/v2/top-headlines",
+      parameters: {"sources": "techcrunch"},
+    );
 
     var response = await http.get(Uri.parse(url));
 
